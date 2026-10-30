@@ -1,28 +1,26 @@
 import React from 'react';
-import { PhoneCall, Calendar, Star, Headphones, Shield, Sparkles, UserCheck } from 'lucide-react';
+import { PhoneCall, Calendar, Star, Headphones, Shield, Sparkles, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
   currentUser: any;
-  allUsers: any[];
-  onSwitchUser: (user: any) => void;
   onTogglePremium: () => void;
+  onLogout: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   setCurrentTab,
   currentUser,
-  allUsers,
-  onSwitchUser,
   onTogglePremium,
+  onLogout,
 }) => {
   return (
     <header className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
+
           {/* Logo & Brand */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentTab('random-call')}>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -88,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Helpdesk</span>
             </button>
 
-            {/* Special Role Tabs */}
+            {/* Special Role Tabs — shown only if the logged-in user has that role */}
             {currentUser?.role === 'ORGANIZATION' && (
               <button
                 onClick={() => setCurrentTab('organization')}
@@ -117,28 +115,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </nav>
 
-          {/* User Switcher / Demo Role Switcher */}
+          {/* Right side: user info + actions */}
           <div className="flex items-center space-x-3">
-            {/* Quick Demo Role Selector */}
-            <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 text-xs">
-              <span className="text-slate-400 px-2 font-medium">Role:</span>
-              <select
-                value={currentUser?.id || ''}
-                onChange={(e) => {
-                  const selected = allUsers.find((u) => u.id === e.target.value);
-                  if (selected) onSwitchUser(selected);
-                }}
-                className="bg-slate-900 text-slate-100 rounded px-2 py-1 outline-none font-semibold border-none cursor-pointer"
-              >
-                {allUsers.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    [{u.role}] {u.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Premium Toggle Button for testing */}
+            {/* Premium Toggle */}
             <button
               onClick={onTogglePremium}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
@@ -146,10 +125,45 @@ export const Navbar: React.FC<NavbarProps> = ({
                   ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 shadow-amber-500/20'
                   : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
               }`}
-              title="Toggle Premium membership for calling celebrities"
+              title="Toggle Premium membership"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{currentUser?.isPremium ? 'PRO PASS' : 'Go Pro'}</span>
+            </button>
+
+            {/* User avatar + name chip */}
+            <div className="hidden sm:flex items-center space-x-2 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5">
+              {currentUser?.avatarUrl ? (
+                <img
+                  src={currentUser.avatarUrl}
+                  alt={currentUser.name}
+                  className="w-6 h-6 rounded-full bg-slate-700"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <span className="text-emerald-400 text-xs font-bold">
+                    {currentUser?.name?.[0]?.toUpperCase() || '?'}
+                  </span>
+                </div>
+              )}
+              <div className="flex flex-col leading-none">
+                <span className="text-slate-200 text-xs font-semibold max-w-[90px] truncate">
+                  {currentUser?.name}
+                </span>
+                <span className="text-slate-500 text-[10px] uppercase tracking-wider font-medium">
+                  {currentUser?.role}
+                </span>
+              </div>
+            </div>
+
+            {/* Logout */}
+            <button
+              onClick={onLogout}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-red-400 hover:bg-red-400/10 border border-slate-700 hover:border-red-400/30 transition-all"
+              title="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
 
